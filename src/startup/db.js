@@ -8,8 +8,13 @@ const logger = winston.createLogger({
 });
 
 export default function () {
+  const mongoUri = process.env.MONGODB_URI;
+  if (!mongoUri) {
+    throw new Error('MONGODB_URI is not configured');
+  }
+
   mongoose
-    .connect('mongodb+srv://samurdhi:2001@cluster0.hhl5j.mongodb.net/?appName=Cluster0') // auto matically create a database
+    .connect(mongoUri)
     .then(() => logger.info('Connected to the Database'))
     .catch((error) => {
       logger.error(error);
