@@ -136,10 +136,39 @@ Returns the updated bank document.
 
 
 DELETE /api/banks/:id
-Deletes one bank.
+Deletes one bank. Authentication is required, and only users with
+isAdmin=true can delete banks.
 
 Success response: 200
 Returns the deleted bank document.
+
+POST /api/banks/:id/columns
+Adds client-defined columns to an existing bank. The request body is a JSON
+object where each property is a column name and its value is the data type.
+Supported data types are string, number, boolean, date, and document.
+
+Request body:
+{
+  "branchCount": "number",
+  "isActive": "boolean",
+  "openingDate": "date"
+}
+
+Success response: 201
+Returns the updated bank document with the customColumns definitions.
+
+POST /api/banks/:id/documents/:columnName
+Uploads a PDF for a bank custom column whose type is "document".
+
+Request:
+- Content-Type: multipart/form-data
+- file: PDF file (maximum 10 MB)
+
+Success response: 201
+Returns the uploaded document metadata.
+
+GET /api/banks/:id/documents/:columnName
+Returns the stored PDF inline. Authentication is required.
 
 
 SECTORS
@@ -223,4 +252,3 @@ ENVIRONMENT VARIABLES
 PORT=3000
 JWT_PRIVATE_KEY=your-jwt-secret
 MONGODB_URI=your-mongodb-connection-string
-

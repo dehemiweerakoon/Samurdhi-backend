@@ -58,6 +58,30 @@ const swaggerDocument = {
           overdueLoanQty: { type: 'integer', minimum: 0, maximum: 255 },
           InactiveLoanAmount: { type: 'number', minimum: 0, maximum: 255 },
           InactiveLoanQty: { type: 'integer', minimum: 0, maximum: 255 },
+          customColumns: {
+            type: 'array',
+            readOnly: true,
+            items: {
+              type: 'object',
+              properties: {
+                name: { type: 'string' },
+                dataType: { type: 'string', enum: ['string', 'number', 'boolean', 'date', 'document'] },
+              },
+            },
+          },
+        },
+      },
+      BankColumns: {
+        type: 'object',
+        minProperties: 1,
+        additionalProperties: {
+          type: 'string',
+          enum: ['string', 'number', 'boolean', 'date', 'document'],
+        },
+        example: {
+          branchCount: 'number',
+          isActive: 'boolean',
+          openingDate: 'date',
         },
       },
       Sector: {
@@ -128,6 +152,55 @@ const swaggerDocument = {
         responses: { 201: { description: 'Bank created' }, 400: { description: 'Validation error' } },
       },
     },
+    '/api/banks/{id}/columns': {
+      parameters: [{ name: 'id', in: 'path', required: true, schema: { type: 'string' } }],
+      post: {
+        tags: ['Banks'],
+        summary: 'Add custom columns to a bank',
+        description: 'Adds client-defined column names and data types to the bank definition.',
+        security: [{ authToken: [] }],
+        requestBody: {
+          required: true,
+          content: { 'application/json': { schema: { $ref: '#/components/schemas/BankColumns' } } },
+        },
+        responses: {
+          201: { description: 'Bank columns added' },
+          400: { description: 'Invalid bank id, column name, or data type' },
+          404: { description: 'Bank not found' },
+          409: { description: 'Column already exists' },
+        },
+      },
+      '/api/banks/{id}/documents/{columnName}': {
+        parameters: [
+          { name: 'id', in: 'path', required: true, schema: { type: 'string' } },
+          { name: 'columnName', in: 'path', required: true, schema: { type: 'string' } },
+        ],
+        post: {
+          tags: ['Banks'],
+          summary: 'Upload a PDF custom column value',
+          security: [{ authToken: [] }],
+          requestBody: {
+            required: true,
+            content: {
+              'multipart/form-data': {
+                schema: {
+                  type: 'object',
+                  required: ['file'],
+                  properties: { file: { type: 'string', format: 'binary' } },
+                },
+              },
+            },
+          },
+          responses: { 201: { description: 'PDF uploaded' }, 400: { description: 'Invalid PDF or column' }, 404: { description: 'Bank not found' } },
+        },
+        get: {
+          tags: ['Banks'],
+          summary: 'Download a PDF custom column value',
+          security: [{ authToken: [] }],
+          responses: { 200: { description: 'PDF document' }, 404: { description: 'Document not found' } },
+        },
+      },
+    },
     '/api/banks/{id}': {
       parameters: [{ name: 'id', in: 'path', required: true, schema: { type: 'string' } }],
       get: {
@@ -150,7 +223,11 @@ const swaggerDocument = {
         tags: ['Banks'],
         summary: 'Delete a bank',
         security: [{ authToken: [] }],
-        responses: { 200: { description: 'Bank deleted' }, 404: { description: 'Bank not found' } },
+        responses: {
+          200: { description: 'Bank deleted' },
+          403: { description: 'Admin access required' },
+          404: { description: 'Bank not found' },
+        },
       },
     },
     '/api/sectors': {
