@@ -31,7 +31,7 @@ app.use(function(req, res, next) {
     const allowedOrigins = [
       'http://localhost:5173',
       'http://127.0.0.1:5173',
-      '*'
+      'https://hilarious-salamander-ce3491.netlify.app/'
     ];
     const requestOrigin = req.headers.origin;
 
