@@ -38,7 +38,7 @@ const bankSchema = new mongoose.Schema({
       },
       dataType: {
         type: String,
-        enum: ['string', 'number', 'boolean', 'date'],
+        enum: ['string', 'number', 'boolean', 'date', 'document'],
         required: true,
       },
     }],
