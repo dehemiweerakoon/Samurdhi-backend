@@ -1,0 +1,226 @@
+SAMURDHI BACKEND API REFERENCE
+==============================
+
+Base URL
+--------
+http://localhost:3000
+
+Swagger UI
+----------
+http://localhost:3000/api-docs/
+
+
+AUTHENTICATION
+--------------
+
+Protected endpoints require one of these headers:
+
+x-auth-token: YOUR_JWT_TOKEN
+
+or:
+
+Authorization: Bearer YOUR_JWT_TOKEN
+
+Get a token by calling POST /api/auth with valid user credentials.
+
+
+SYSTEM
+------
+
+GET /health
+Checks whether the service is running.
+
+Response:
+{
+  "status": "ok",
+  "service": "samurdhi-backend",
+  "uptime": 123.45
+}
+
+
+USERS
+-----
+
+POST /api/user
+Creates a new user.
+
+Request body:
+{
+  "name": "Dehemi Weerakoon",
+  "email": "dehemi@example.com",
+  "password": "password123"
+}
+
+Success response: 200
+The response includes the user details and an x-auth-token response header.
+
+
+GET /api/user/me
+Returns the currently authenticated user.
+
+Authentication: Required
+
+Success response: 200
+{
+  "_id": "USER_OBJECT_ID",
+  "name": "Dehemi Weerakoon",
+  "email": "dehemi@example.com"
+}
+
+
+AUTHENTICATION
+--------------
+
+POST /api/auth
+Authenticates a user and returns a JWT token.
+
+Request body:
+{
+  "email": "dehemi@example.com",
+  "password": "password123"
+}
+
+Success response: 200
+"JWT_TOKEN"
+
+
+BANKS
+-----
+
+All bank endpoints require authentication.
+
+POST /api/banks
+Creates a bank.
+
+Request body:
+{
+  "name": "Bank of Ceylon",
+  "overdueLoanAmount": 100,
+  "overdueLoanQty": 5,
+  "InactiveLoanAmount": 50,
+  "InactiveLoanQty": 2
+}
+
+Success response: 201
+Returns the created bank document.
+
+
+GET /api/banks
+Returns all banks sorted by name.
+
+Success response: 200
+Returns an array of bank documents.
+
+
+GET /api/banks/:id
+Returns one bank by MongoDB ObjectId.
+
+Example:
+GET /api/banks/507f1f77bcf86cd799439011
+
+Success response: 200
+Returns the bank document.
+
+
+PUT /api/banks/:id
+Updates one or more bank fields.
+
+Request body:
+{
+  "name": "Updated Bank Name",
+  "overdueLoanAmount": 120
+}
+
+Success response: 200
+Returns the updated bank document.
+
+
+DELETE /api/banks/:id
+Deletes one bank.
+
+Success response: 200
+Returns the deleted bank document.
+
+
+SECTORS
+-------
+
+All sector endpoints require authentication.
+
+POST /api/sectors
+Creates a sector linked to an existing bank.
+
+Request body:
+{
+  "name": "Colombo Sector",
+  "bank": "BANK_OBJECT_ID",
+  "location": "Colombo"
+}
+
+Success response: 201
+Returns the created sector with the bank name populated.
+
+
+GET /api/sectors
+Returns all sectors sorted by name.
+
+Success response: 200
+Returns an array of sectors with the bank name populated.
+
+
+GET /api/sectors/:id
+Returns one sector by MongoDB ObjectId.
+
+Example:
+GET /api/sectors/507f1f77bcf86cd799439011
+
+Success response: 200
+Returns the sector with the bank name populated.
+
+
+PUT /api/sectors/:id
+Updates one or more sector fields.
+
+Request body:
+{
+  "name": "Updated Sector",
+  "location": "Kandy"
+}
+
+Success response: 200
+Returns the updated sector.
+
+
+DELETE /api/sectors/:id
+Deletes one sector.
+
+Success response: 200
+Returns the deleted sector.
+
+
+COMMON RESPONSES
+----------------
+
+200 OK
+Request completed successfully.
+
+201 Created
+Resource was created successfully.
+
+400 Bad Request
+Invalid JSON, invalid MongoDB id, invalid credentials, or validation error.
+
+401 Unauthorized
+Authentication token is missing, invalid, or expired.
+
+404 Not Found
+Requested bank or sector does not exist.
+
+
+ENVIRONMENT VARIABLES
+---------------------
+
+PORT=3000
+JWT_PRIVATE_KEY=your-jwt-secret
+MONGODB_URI=your-mongodb-connection-string
+
